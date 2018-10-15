@@ -13,7 +13,7 @@ class App extends Component {
         </header>
         <div className="App-intro">
           <Game roomId="default"
-                userId="Hurensohn"/>
+                userName="Hurensohn"/>
         </div>
       </div>
     );

@@ -13,7 +13,7 @@ class MessageList extends Component {
             {this.props.messages.map(message => {
                 return (
                     <li key={message.id} className={'color-' + message.color}>
-                        <b>{message.userId}</b> : {message.text}
+                        <b>{message.userName}</b> : {message.text}
                     </li>
                 )
             })}
