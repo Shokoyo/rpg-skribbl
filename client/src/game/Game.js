@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import Sockette from 'sockette';
 import Canvas from './Canvas';
 import Chat from './Chat';
-import openSocket from 'socket.io-client';
 
 class Game extends Component {
     constructor(props) {
@@ -11,25 +9,9 @@ class Game extends Component {
             roomId: props.roomId,
             userName: props.userName,
             messages: [],
-            reconnecting: false
+            reconnecting: false,
+            socket: props.socket
         };
-        this.state.socket = openSocket('http://localhost:8888');
-
-        /////////////// On connect: try to join a room ////////////////////
-        this.state.socket.on('connect', () => {
-            if(!this.state.reconnecting) {
-                let userId = localStorage.getItem('userName');
-                if (userId === null || userId === 'undefined') {
-                    userId = this.state.socket.id;
-                    localStorage.setItem('userName', userId);
-                }
-                console.log(this.state.socket.connected);
-                console.log(this.state.socket.id);
-
-                this.state.socket.emit('create room', this.state.userName, userId);
-            }
-            this.state.reconnecting = false;
-        });
 
         /////////////// Register reconnect, disconnect, ... ////////////////
         this.state.socket.on('reconnect', () => {
@@ -38,7 +20,7 @@ class Game extends Component {
         });
 
         this.state.socket.on('reconnecting', () => {
-            this.state.reconnecting = true;
+            this.setState({reconnecting : true});
         });
 
         this.state.socket.on('connect_error', error => {

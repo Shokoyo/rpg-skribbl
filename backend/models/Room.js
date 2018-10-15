@@ -22,6 +22,7 @@ class Room {
 
     removeUser(userId) {
         console.log('User ' + userId + " left");
+        console.log(this.users);
         const user = this.users[userId];
         this.serverMessage(user.userName + ' left the game.');
         delete this.users[userId];
@@ -37,19 +38,22 @@ class Room {
     }
 
     sendMessage(message) {
-
+        this.io.to(this.roomId).emit('new message', {
+            userName: message.userName,
+            color: 'black',
+            text: message.text,
+            id: 0,
+            timestamp: Date.now()
+        });
     }
 
     serverMessage(message) {
-        for(let key in this.users) {
-            const user = this.users[key];
-            user.client.emit('new message', {
+        this.io.to(this.roomId).emit('new message', {
                 userName: 'Server',
                 color: 'blue',
                 text: message,
                 timestamp: Date.now()
-            });
-        }
+        });
     }
 
     updateClient(user) {

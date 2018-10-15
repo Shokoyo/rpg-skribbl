@@ -22,6 +22,7 @@ let _ = require('lodash');
 io.on('connection', client => {
     console.log('User connected, id: ' + client.id);
     let _userId = '';
+    let _roomId = '';
     let timeout = null;
     client.on('join room', (roomId, userName, userId) => {
         if(!rooms.hasOwnProperty(roomId)) {
@@ -40,7 +41,9 @@ io.on('connection', client => {
             room.addUser(users[userId]);
             room.serverMessage('Hallo!');
             client.join(roomId);
+            client.emit('joined room', _roomId);
             _userId = userId;
+            _roomId = roomId;
         }
     });
 
@@ -55,9 +58,12 @@ io.on('connection', client => {
             avatar: {}
         };
         rooms[roomId] = new Room(users[userId], io, roomId);
-        rooms[roomId].serverMessage('Created room with id ' + roomId);
+        console.log('Created room, id: ' + roomId);
+        client.emit('joined room', _roomId);
         client.join(roomId);
+        rooms[roomId].serverMessage('Created room with id ' + roomId);
         _userId = userId;
+        _roomId = roomId;
     });
 
     client.on('reconnect', userId => {
@@ -85,14 +91,7 @@ io.on('connection', client => {
     });
 
     client.on('new message', message => {
-        console.log(message);
-        io.emit('new message', {
-            userName: message.userName,
-            color: 'black',
-            text: message.text,
-            id: 0,
-            timestamp: Date.now()
-        });
+        rooms[_roomId].sendMessage(message);
     });
 });
 
