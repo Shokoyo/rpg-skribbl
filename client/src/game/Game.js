@@ -8,6 +8,7 @@ class Game extends Component {
         this.state = {
             roomId: props.roomId,
             userName: props.userName,
+            userId: props.userId,
             messages: [],
             reconnecting: false,
             socket: props.socket
@@ -72,7 +73,8 @@ class Game extends Component {
         const msg = {
             userName: this.state.userName,
             roomId: this.state.roomId,
-            text: message
+            text: message,
+            userId: this.state.userId
         };
         console.log(this.state.socket);
         console.log(msg);
@@ -81,7 +83,7 @@ class Game extends Component {
     render() {
         return (
             <div className="Game">
-                <Canvas/>
+                <Canvas socket={this.state.socket} />
                 <Chat messages={this.state.messages} sendMessage={this.sendMessage.bind(this)}/>
             </div>
         );

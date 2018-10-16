@@ -4,20 +4,28 @@ class Room {
     constructor(host, io, roomId) {
         host.host = true;
         host.score = 0;
+        host.finished = false;
         this.host = host;
         this.users = {};
         this.users[host.userId] = host;
         this.nextMessageId = 0;
         this.io = io;
         this.roomId = roomId;
-        this.sendUserlist();
+        this.playing = false;
+        this.currentWord = '';
+        this.sendUserList();
+    }
+
+    startGame(rounds) {
+
     }
 
     addUser(user) {
         user.host = false;
         user.score = 0;
+        user.finished = false;
         this.users[user.userId] = user;
-        this.sendUserlist();
+        this.sendUserList();
     }
 
     removeUser(userId) {
@@ -28,7 +36,7 @@ class Room {
         delete this.users[userId];
     }
 
-    sendUserlist() {
+    sendUserList() {
         let userList = {};
         for(let key in this.users) {
             userList[key] = _.pick(this.users[key],'host','userName','userId','score', 'avatar');
@@ -38,13 +46,22 @@ class Room {
     }
 
     sendMessage(message) {
-        this.io.to(this.roomId).emit('new message', {
-            userName: message.userName,
-            color: 'black',
-            text: message.text,
-            id: 0,
-            timestamp: Date.now()
-        });
+        if(this.playing && message.text === this.currentWord) {
+            //User guessed correctly
+
+        }
+        if(this.users[message.userId].finished) {
+            //User already guessed the word, use separate channel
+
+        } else {
+            this.io.to(this.roomId).emit('new message', {
+                userName: message.userName,
+                color: 'black',
+                text: message.text,
+                id: 0,
+                timestamp: Date.now()
+            });
+        }
     }
 
     serverMessage(message) {

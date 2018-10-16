@@ -36,19 +36,21 @@ class App extends Component {
 
     handleSubmit(event) {
         if(this.state.roomId === '') {
-            let userId = localStorage.getItem('userName');
+            let userId = localStorage.getItem('userId');
             if (userId === null || userId === 'undefined') {
                 userId = this.state.socket.id;
-                localStorage.setItem('userName', userId);
+                localStorage.setItem('userId', userId);
             }
+            this.setState({userId: userId});
             console.log('Creating room');
             this.state.socket.emit('create room', this.state.userName, userId);
         } else {
-            let userId = localStorage.getItem('userName');
+            let userId = localStorage.getItem('userId');
             if (userId === null || userId === 'undefined') {
                 userId = this.state.socket.id;
-                localStorage.setItem('userName', userId);
+                localStorage.setItem('userId', userId);
             }
+            this.setState({userId: userId});
             console.log('Joining room ' + this.state.roomId);
             this.state.socket.emit('join room', this.state.roomId, this.state.userName, userId);
         }
@@ -66,7 +68,8 @@ class App extends Component {
               {this.state.joinedRoom ? (
                   <Game roomId={this.state.roomId}
                       userName={this.state.userName}
-                      socket={this.state.socket}/>
+                      socket={this.state.socket}
+                      userId={this.state.userId}/>
               ) : (
                   <form onSubmit={this.handleSubmit}>
                       <label>
