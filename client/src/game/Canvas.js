@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Immutable from 'immutable';
 import './Canvas.css';
 
 class Canvas extends Component {
@@ -9,17 +8,17 @@ class Canvas extends Component {
         this.state = {
             socket: props.socket,
             isDrawing: false,
-            lines: new Immutable.List(),
+            lines: [],
             isDrawingEnabled: true
         };
 
-        this.state.socket.on('new line', (line) => {
+        this.state.socket.on('new line', line => {
             this.setState(prevState => {
+                prevState.lines.push(line);
                 return {
-                    lines: prevState.lines.push(line)
+                    lines: prevState.lines
                 }
             });
-            console.log(this.state.lines);
         });
 
         this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -35,7 +34,7 @@ class Canvas extends Component {
     }
     handleMouseUp() {
         if(this.state.isDrawingEnabled && this.state.isDrawing) {
-            this.state.socket.emit('new line', this.state.lines.last());
+            this.state.socket.emit('new line', this.state.lines[this.state.lines.length - 1]);
         }
         this.setState({isDrawing: false});
     }
@@ -48,8 +47,9 @@ class Canvas extends Component {
         const point = this.relativeCoordinatesForEvent(mouseEvent);
 
         this.setState(prevState => {
+            prevState.lines.push([point]);
             return {
-                lines: prevState.lines.push(new Immutable.List([point])),
+                lines: prevState.lines,
                 isDrawing: true,
             };
         });
@@ -59,10 +59,10 @@ class Canvas extends Component {
 
     relativeCoordinatesForEvent(mouseEvent) {
         const boundingRect = this.refs.drawArea.getBoundingClientRect();
-        return new Immutable.Map({
+        return {
             x: mouseEvent.clientX - boundingRect.left,
             y: mouseEvent.clientY - boundingRect.top,
-        });
+        };
     }
 
     handleMouseMove(mouseEvent) {
@@ -73,8 +73,9 @@ class Canvas extends Component {
         const point = this.relativeCoordinatesForEvent(mouseEvent);
 
         this.setState(prevState => {
+            prevState.lines[prevState.lines.length - 1].push(point);
             return {
-                lines: prevState.lines.updateIn([prevState.lines.size - 1], line => line.push(point)),
+                lines: prevState.lines,
             };
         });
     }
@@ -96,7 +97,7 @@ class Canvas extends Component {
 function Drawing({ lines }) {
     return (
         <svg className="drawing">
-            {lines.map((line, index) => (
+            {lines.map((line,index) => (
                 <DrawingLine key={index} line={line} />
             ))}
         </svg>
@@ -107,7 +108,7 @@ function DrawingLine({ line }) {
     const pathData = "M " +
         line
             .map(p => {
-                return `${p.get('x')} ${p.get('y')}`;
+                return `${p.x} ${p.y}`;
             })
             .join(" L ");
 

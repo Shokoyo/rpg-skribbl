@@ -10,9 +10,9 @@ class MessageList extends Component {
     render() {
         return (
             <ul className="message-list">
-            {this.props.messages.map(message => {
+            {this.props.messages.map((message,index) => {
                 return (
-                    <li key={message.id} className={'color-' + message.color}>
+                    <li key={index} className={'color-' + message.color}>
                         <b>{message.userName}</b> : {message.text}
                     </li>
                 )
