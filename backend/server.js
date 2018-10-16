@@ -93,6 +93,10 @@ io.on('connection', client => {
     client.on('new message', message => {
         rooms[_roomId].sendMessage(message);
     });
+
+    client.on('new line', line => {
+        rooms[_roomId].addLine(line, _userId);
+    })
 });
 
 server.listen(8888);

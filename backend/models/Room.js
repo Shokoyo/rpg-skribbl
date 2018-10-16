@@ -20,6 +20,13 @@ class Room {
 
     }
 
+    addLine(line, userId) {
+        //TODO: Check if user is drawing
+        if(true) {
+            this.io.to(this.roomId).emit('new line', line);
+        }
+    }
+
     addUser(user) {
         user.host = false;
         user.score = 0;

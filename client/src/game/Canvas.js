@@ -9,9 +9,18 @@ class Canvas extends Component {
         this.state = {
             socket: props.socket,
             isDrawing: false,
-            lines: new Immutable.List()
+            lines: new Immutable.List(),
+            isDrawingEnabled: true
         };
-        console.log(this.state);
+
+        this.state.socket.on('new line', (line) => {
+            this.setState(prevState => {
+                return {
+                    lines: prevState.lines.push(line)
+                }
+            });
+            console.log(this.state.lines);
+        });
 
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseMove = this.handleMouseMove.bind(this);
@@ -25,11 +34,14 @@ class Canvas extends Component {
         document.removeEventListener("mouseup", this.handleMouseUp);
     }
     handleMouseUp() {
-        this.setState({ isDrawing: false });
+        if(this.state.isDrawingEnabled && this.state.isDrawing) {
+            this.state.socket.emit('new line', this.state.lines.last());
+        }
+        this.setState({isDrawing: false});
     }
 
     handleMouseDown(mouseEvent) {
-        if (mouseEvent.button !== 0) {
+        if (mouseEvent.button !== 0 || !this.state.isDrawingEnabled) {
             return;
         }
 
@@ -54,7 +66,7 @@ class Canvas extends Component {
     }
 
     handleMouseMove(mouseEvent) {
-        if (!this.state.isDrawing) {
+        if (!this.state.isDrawing || !this.state.isDrawingEnabled) {
             return;
         }
 
