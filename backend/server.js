@@ -41,7 +41,7 @@ io.on('connection', client => {
             room.addUser(users[userId]);
             room.serverMessage('Hallo!');
             client.join(roomId);
-            client.emit('joined room', _roomId);
+            client.emit('joined room', _roomId, false);
             _userId = userId;
             _roomId = roomId;
         }
@@ -59,7 +59,7 @@ io.on('connection', client => {
         };
         rooms[roomId] = new Room(users[userId], io, roomId);
         console.log('Created room, id: ' + roomId);
-        client.emit('joined room', _roomId);
+        client.emit('joined room', _roomId, true);
         client.join(roomId);
         rooms[roomId].serverMessage('Created room with id ' + roomId);
         _userId = userId;
@@ -96,7 +96,16 @@ io.on('connection', client => {
 
     client.on('new line', line => {
         rooms[_roomId].addLine(line, _userId);
-    })
+    });
+
+    client.on('toggle pause', () => {
+        rooms[_roomId].togglePause(_userId);
+    });
+
+    client.on('start game', rounds => {
+        console.log(_userId);
+        rooms[_roomId].startGame(rounds, _userId);
+    });
 });
 
 server.listen(8888);

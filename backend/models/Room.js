@@ -2,7 +2,7 @@ let _ = require('lodash');
 
 class Room {
     constructor(host, io, roomId) {
-        host.host = true;
+        host.isHost = true;
         host.score = 0;
         host.finished = false;
         this.host = host;
@@ -13,6 +13,7 @@ class Room {
         this.roomId = roomId;
         this.playing = false;
         this.currentWord = '';
+        this.rounds = 0;
         this.sendUserList();
     }
 
@@ -28,7 +29,7 @@ class Room {
     }
 
     addUser(user) {
-        user.host = false;
+        user.isHost = false;
         user.score = 0;
         user.finished = false;
         this.users[user.userId] = user;
@@ -78,6 +79,25 @@ class Room {
                 text: message,
                 timestamp: Date.now()
         });
+    }
+
+    startGame(rounds, userId) {
+        console.log('User id: ' + userId);
+        if(this.users[userId].isHost) {
+            this.playing = true;
+            this.rounds = rounds;
+            console.log('Start');
+            //TODO do start stuff
+        }
+    }
+
+    togglePause(userId) {
+        if(this.users[userId].isHost) {
+            console.log('Toggle pause');
+            this.playing = !this.playing;
+            this.io.to(this.roomId).emit('toggle pause', this.playing);
+            //TODO broadcast pause? do something else?
+        }
     }
 
     updateClient(user) {

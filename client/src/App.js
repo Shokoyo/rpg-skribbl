@@ -11,13 +11,15 @@ class App extends Component {
             socket : openSocket('http://localhost:8888'),
             userName : '',
             roomId : '',
-            joinedRoom : false
+            joinedRoom : false,
+            isHost: false
         };
-        this.state.socket.on('joined room', roomId => {
+        this.state.socket.on('joined room', (roomId,isHost) => {
             console.log('Joined Room');
             this.setState({
                 roomId : roomId,
-                joinedRoom: true
+                joinedRoom: true,
+                isHost: isHost
             });
         });
 
@@ -69,7 +71,9 @@ class App extends Component {
                   <Game roomId={this.state.roomId}
                       userName={this.state.userName}
                       socket={this.state.socket}
-                      userId={this.state.userId}/>
+                      userId={this.state.userId}
+                      isHost={this.state.isHost}
+                  />
               ) : (
                   <form onSubmit={this.handleSubmit}>
                       <label>
