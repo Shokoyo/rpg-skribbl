@@ -87,7 +87,11 @@ class Room {
             this.playing = true;
             this.rounds = rounds;
             console.log('Start');
-            //TODO do start stuff
+            //TODO do start stuff:
+            //determine first player
+            //send words to choose from
+            //do timer stuff
+            //repeat til the end
         }
     }
 
